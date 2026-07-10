@@ -162,3 +162,53 @@ export async function inviteClient(clientId: string, clientEmail: string, client
 
   return { success: true, userId: inviteData.user?.id }
 }
+
+// ─────────────────────────────────────────────────────────────
+// COMPLETE ONBOARDING
+// Creates the firm and user profile for a newly signed-up OAuth user.
+// ─────────────────────────────────────────────────────────────
+export async function completeOnboarding(formData: FormData) {
+  const supabase = await createClient()
+  const adminSupabase = await createAdminClient()
+
+  // Get current authenticated user
+  const { data: { user }, error: authError } = await supabase.auth.getUser()
+  if (authError || !user) {
+    redirect('/auth/login?error=not_authenticated')
+  }
+
+  const firmName = formData.get('firm_name') as string
+  const fullName = formData.get('full_name') as string
+
+  if (!firmName || !fullName) {
+    redirect('/auth/onboarding?error=missing_fields')
+  }
+
+  // Create the firm
+  const { data: firm, error: firmError } = await adminSupabase
+    .from('firm')
+    .insert({ name: firmName })
+    .select('id')
+    .single()
+
+  if (firmError || !firm) {
+    redirect('/auth/onboarding?error=firm_creation_failed')
+  }
+
+  // Create the user_profile as firm_admin
+  const { error: profileError } = await adminSupabase
+    .from('user_profile')
+    .upsert({
+      id:        user.id,
+      firm_id:   firm.id,
+      full_name: fullName,
+      role:      'firm_admin',
+    })
+
+  if (profileError) {
+    redirect('/auth/onboarding?error=profile_creation_failed')
+  }
+
+  revalidatePath('/', 'layout')
+  redirect('/dashboard')
+}

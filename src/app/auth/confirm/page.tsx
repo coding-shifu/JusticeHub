@@ -88,9 +88,25 @@ export default async function ConfirmPage({
 
     redirect('/portal')
   } else {
-    // ── Staff / firm admin signup confirmation ───────────────
-    const firmName = meta?.firm_name ?? 'My Firm'
-    const fullName = meta?.full_name ?? 'Admin'
+    // Check if the user already has a profile (existing user logging in)
+    const { data: profile } = await supabase
+      .from('user_profile')
+      .select('id')
+      .eq('id', user.id)
+      .maybeSingle()
+
+    if (profile) {
+      redirect('/dashboard')
+    }
+
+    // If no profile exists and this is a Google sign up (no firm_name in metadata),
+    // redirect to onboarding page to enter firm name.
+    if (!meta?.firm_name) {
+      redirect('/auth/onboarding')
+    }
+
+    const firmName = meta.firm_name
+    const fullName = meta.full_name ?? 'Admin'
 
     // Create the firm
     const { data: firm, error: firmError } = await adminSupabase
