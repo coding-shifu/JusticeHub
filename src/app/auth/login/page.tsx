@@ -1,5 +1,6 @@
 import { signIn } from '@/app/auth/actions'
 import { JusticeHubLogo } from '@/components/ui/JusticeHubLogo'
+import { GoogleSignInButton } from '@/components/ui/GoogleSignInButton'
 
 export default async function LoginPage({
   searchParams,
@@ -75,6 +76,14 @@ export default async function LoginPage({
             Sign in
           </button>
         </form>
+
+        <div style={{ margin: '20px 0', display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <div style={{ flex: 1, height: '1px', background: 'var(--color-border)' }} />
+          <span style={{ fontSize: '11px', color: 'var(--color-text-muted)', textTransform: 'uppercase', fontWeight: 600, letterSpacing: '0.5px' }}>or</span>
+          <div style={{ flex: 1, height: '1px', background: 'var(--color-border)' }} />
+        </div>
+
+        <GoogleSignInButton />
 
         <p className="auth-footer-link">
           New to JusticeHub?{' '}
