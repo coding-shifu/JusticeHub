@@ -92,8 +92,8 @@ export async function clientSignIn(formData: FormData) {
   const password = (formData.get('password') as string)?.trim()
   const slug     = formData.get('slug') as string
 
-  if (!email || !slug) {
-    redirect(`/auth/client-login?error=missing_fields`)
+  if (!email || !slug || !password) {
+    redirect(`/portal/${slug}/login?error=missing_fields`)
   }
 
   // 1. Verify that the firm exists with this slug
@@ -119,36 +119,91 @@ export async function clientSignIn(formData: FormData) {
     redirect(`/portal/${slug}/login?error=no_portal_access`)
   }
 
-  // If a password was supplied, try email+password sign-in first
-  if (password) {
-    const { error } = await supabase.auth.signInWithPassword({ email, password })
-
-    if (error) {
-      redirect(`/portal/${slug}/login?error=${encodeURIComponent(error.message)}`)
-    }
-
-    redirect('/portal')
-  }
-
-  const headersList = await headers()
-  const host = headersList.get('host')
-  const protocol = host?.includes('localhost') ? 'http' : 'https'
-  const siteUrl = `${protocol}://${host}`
-
-  // No password → send OTP magic link
-  const { error } = await supabase.auth.signInWithOtp({
-    email,
-    options: {
-      emailRedirectTo: `${siteUrl}/auth/confirm`,
-      shouldCreateUser: false, // Clients must already exist via invite
-    },
-  })
+  // Log in using email + password
+  const { error } = await supabase.auth.signInWithPassword({ email, password })
 
   if (error) {
     redirect(`/portal/${slug}/login?error=${encodeURIComponent(error.message)}`)
   }
 
-  redirect(`/portal/${slug}/login?success=check_email`)
+  revalidatePath('/', 'layout')
+  redirect('/portal')
+}
+
+// ─────────────────────────────────────────────────────────────
+// SEND CLIENT OTP CODE
+// Triggers Supabase to send a 6-digit verification code to the client.
+// ─────────────────────────────────────────────────────────────
+export async function sendClientOtp(email: string, slug: string) {
+  const adminSupabase = await createAdminClient()
+
+  // 1. Verify that the firm exists with this slug
+  const { data: firm } = await adminSupabase
+    .from('firm')
+    .select('id')
+    .eq('slug', slug)
+    .maybeSingle()
+
+  if (!firm) {
+    return { error: 'Firm portal not found' }
+  }
+
+  // 2. Verify that the client email belongs to this specific firm
+  const { data: clientRecord } = await adminSupabase
+    .from('client')
+    .select('id')
+    .eq('firm_id', firm.id)
+    .eq('email', email)
+    .maybeSingle()
+
+  if (!clientRecord) {
+    return { error: 'No portal access found for this email under this firm' }
+  }
+
+  // 3. Send Supabase OTP code
+  const supabase = await createClient()
+  const { error } = await supabase.auth.signInWithOtp({
+    email,
+    options: {
+      shouldCreateUser: false, // Clients must already be invited
+    },
+  })
+
+  if (error) {
+    return { error: error.message }
+  }
+
+  return { success: true }
+}
+
+// ─────────────────────────────────────────────────────────────
+// VERIFY CLIENT OTP CODE
+// Verifies the 6-digit OTP code entered by the client.
+// ─────────────────────────────────────────────────────────────
+export async function verifyClientOtp(email: string, token: string, slug: string) {
+  const supabase = await createClient()
+
+  // Verify the code (attempt type 'email' first, then 'magiclink' as fallback)
+  const { error } = await supabase.auth.verifyOtp({
+    email,
+    token,
+    type: 'email',
+  })
+
+  if (error) {
+    const { error: fbError } = await supabase.auth.verifyOtp({
+      email,
+      token,
+      type: 'magiclink',
+    })
+
+    if (fbError) {
+      return { error: fbError.message }
+    }
+  }
+
+  revalidatePath('/', 'layout')
+  return { success: true }
 }
 
 // ─────────────────────────────────────────────────────────────

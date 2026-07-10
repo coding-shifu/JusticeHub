@@ -35,7 +35,7 @@ export default async function CaseDetailPage({ params }: CaseDetailPageProps) {
 
   const { data: firm } = await supabase
     .from('firm')
-    .select('name')
+    .select('name, slug')
     .eq('id', profile.firm_id)
     .single()
 
@@ -262,6 +262,7 @@ export default async function CaseDetailPage({ params }: CaseDetailPageProps) {
                     clientName={clientInfo.name}
                     portalAccess={clientInfo.portal_access}
                     hasAuthUser={!!clientInfo.auth_user_id}
+                    firmSlug={firm?.slug ?? ''}
                   />
                 </div>
               )
