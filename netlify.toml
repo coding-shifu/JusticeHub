@@ -1,0 +1,4 @@
+[build.environment]
+  # The Supabase anon key is intentionally public for browser/client auth and
+  # can be inlined into generated Next/Netlify Edge Function output.
+  SECRETS_SCAN_OMIT_KEYS = "NEXT_PUBLIC_SUPABASE_ANON_KEY"
