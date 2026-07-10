@@ -74,7 +74,7 @@ export function InviteClientButton({
             ● Invite Pending
           </span>
           <p style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', marginTop: '0.15rem' }}>
-            Invitation sent, waiting for client to log in.
+            Invitation sent. Client can log in using their verification code.
           </p>
         </div>
         
