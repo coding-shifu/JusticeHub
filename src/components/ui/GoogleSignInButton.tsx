@@ -3,7 +3,11 @@
 import React from 'react'
 import { createClient } from '@/lib/supabase/client'
 
-export function GoogleSignInButton() {
+export function GoogleSignInButton({
+  mode = 'signin',
+}: {
+  mode?: 'signin' | 'signup'
+}) {
   const [isLoading, setIsLoading] = React.useState(false)
 
   const handleGoogleSignIn = async () => {
@@ -21,6 +25,11 @@ export function GoogleSignInButton() {
       console.error('Google Sign-In Error:', error)
       setIsLoading(false)
     }
+  }
+
+  const getButtonText = () => {
+    if (isLoading) return 'Connecting...'
+    return mode === 'signup' ? 'Sign up with Google' : 'Sign in with Google'
   }
 
   return (
@@ -78,7 +87,7 @@ export function GoogleSignInButton() {
           fill="#EA4335"
         />
       </svg>
-      {isLoading ? 'Connecting...' : 'Sign in with Google'}
+      {getButtonText()}
     </button>
   )
 }
