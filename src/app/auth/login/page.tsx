@@ -89,6 +89,11 @@ export default async function LoginPage({
           New to JusticeHub?{' '}
           <a href="/auth/signup" id="go-to-signup-link">Create your firm account</a>
         </p>
+
+        <p className="auth-footer-link" style={{ marginTop: '8px' }}>
+          Are you a client?{' '}
+          <a href="/auth/client-login" id="go-to-client-login-link">Client portal sign in</a>
+        </p>
       </div>
     </div>
   )

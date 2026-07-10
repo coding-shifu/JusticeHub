@@ -1,5 +1,6 @@
 import { redirect } from 'next/navigation'
 import { createClient, createAdminClient } from '@/lib/supabase/server'
+import { generateUniqueSlug } from '@/lib/slug'
 
 /**
  * /auth/confirm
@@ -68,6 +69,13 @@ export default async function ConfirmPage({
     const firmId   = meta?.firm_id
 
     if (clientId && firmId) {
+      // Get the firm's slug
+      const { data: firm } = await adminSupabase
+        .from('firm')
+        .select('slug')
+        .eq('id', firmId)
+        .single()
+
       // Link the auth user to the client record
       await adminSupabase
         .from('client')
@@ -84,6 +92,10 @@ export default async function ConfirmPage({
           full_name: meta?.full_name ?? 'Client',
           role:      'client',
         })
+
+      if (firm) {
+        redirect(`/portal/${firm.slug}`)
+      }
     }
 
     redirect('/portal')
@@ -108,10 +120,13 @@ export default async function ConfirmPage({
     const firmName = meta.firm_name
     const fullName = meta.full_name ?? 'Admin'
 
+    // Generate unique slug for the new firm
+    const slug = await generateUniqueSlug(firmName)
+
     // Create the firm
     const { data: firm, error: firmError } = await adminSupabase
       .from('firm')
-      .insert({ name: firmName })
+      .insert({ name: firmName, slug })
       .select('id')
       .single()
 

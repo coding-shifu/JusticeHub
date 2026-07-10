@@ -19,6 +19,7 @@ export type CaseStatus = 'intake' | 'active' | 'awaiting_court' | 'closed'
 export interface FirmRow {
   id: string
   name: string
+  slug: string
   plan_tier: string
   created_at: string
 }

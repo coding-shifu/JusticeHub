@@ -4,6 +4,7 @@ import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 import { headers } from 'next/headers'
 import { createClient, createAdminClient } from '@/lib/supabase/server'
+import { generateUniqueSlug } from '@/lib/slug'
 
 // ─────────────────────────────────────────────────────────────
 // STAFF SIGNUP
@@ -85,12 +86,37 @@ export async function signOut() {
 // ─────────────────────────────────────────────────────────────
 export async function clientSignIn(formData: FormData) {
   const supabase = await createClient()
+  const adminSupabase = await createAdminClient()
 
   const email    = formData.get('email') as string
   const password = (formData.get('password') as string)?.trim()
+  const slug     = formData.get('slug') as string
 
-  if (!email) {
-    redirect('/auth/client-login?error=missing_email')
+  if (!email || !slug) {
+    redirect(`/auth/client-login?error=missing_fields`)
+  }
+
+  // 1. Verify that the firm exists with this slug
+  const { data: firm } = await adminSupabase
+    .from('firm')
+    .select('id')
+    .eq('slug', slug)
+    .maybeSingle()
+
+  if (!firm) {
+    redirect(`/auth/client-login?error=invalid_firm`)
+  }
+
+  // 2. Verify that the client email belongs to this specific firm
+  const { data: clientRecord } = await adminSupabase
+    .from('client')
+    .select('id')
+    .eq('firm_id', firm.id)
+    .eq('email', email)
+    .maybeSingle()
+
+  if (!clientRecord) {
+    redirect(`/portal/${slug}/login?error=no_portal_access`)
   }
 
   // If a password was supplied, try email+password sign-in first
@@ -98,7 +124,7 @@ export async function clientSignIn(formData: FormData) {
     const { error } = await supabase.auth.signInWithPassword({ email, password })
 
     if (error) {
-      redirect(`/auth/client-login?error=${encodeURIComponent(error.message)}`)
+      redirect(`/portal/${slug}/login?error=${encodeURIComponent(error.message)}`)
     }
 
     redirect('/portal')
@@ -119,10 +145,10 @@ export async function clientSignIn(formData: FormData) {
   })
 
   if (error) {
-    redirect(`/auth/client-login?error=${encodeURIComponent(error.message)}`)
+    redirect(`/portal/${slug}/login?error=${encodeURIComponent(error.message)}`)
   }
 
-  redirect('/auth/client-login?success=check_email')
+  redirect(`/portal/${slug}/login?success=check_email`)
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -200,10 +226,13 @@ export async function completeOnboarding(formData: FormData) {
     redirect('/auth/onboarding?error=missing_fields')
   }
 
+  // Generate unique slug for the firm
+  const slug = await generateUniqueSlug(firmName)
+
   // Create the firm
   const { data: firm, error: firmError } = await adminSupabase
     .from('firm')
-    .insert({ name: firmName })
+    .insert({ name: firmName, slug })
     .select('id')
     .single()
 
