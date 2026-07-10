@@ -2,6 +2,7 @@
 
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
+import { headers } from 'next/headers'
 import { createClient, createAdminClient } from '@/lib/supabase/server'
 
 // ─────────────────────────────────────────────────────────────
@@ -22,6 +23,11 @@ export async function signUp(formData: FormData) {
     redirect('/auth/signup?error=missing_fields')
   }
 
+  const headersList = await headers()
+  const host = headersList.get('host')
+  const protocol = host?.includes('localhost') ? 'http' : 'https'
+  const siteUrl = `${protocol}://${host}`
+
   const { error } = await supabase.auth.signUp({
     email,
     password,
@@ -32,7 +38,7 @@ export async function signUp(formData: FormData) {
         firm_name: firmName,
         role: 'firm_admin',
       },
-      emailRedirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/auth/confirm`,
+      emailRedirectTo: `${siteUrl}/auth/confirm`,
     },
   })
 
@@ -98,11 +104,16 @@ export async function clientSignIn(formData: FormData) {
     redirect('/portal')
   }
 
+  const headersList = await headers()
+  const host = headersList.get('host')
+  const protocol = host?.includes('localhost') ? 'http' : 'https'
+  const siteUrl = `${protocol}://${host}`
+
   // No password → send OTP magic link
   const { error } = await supabase.auth.signInWithOtp({
     email,
     options: {
-      emailRedirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/auth/confirm`,
+      emailRedirectTo: `${siteUrl}/auth/confirm`,
       shouldCreateUser: false, // Clients must already exist via invite
     },
   })
@@ -137,11 +148,16 @@ export async function inviteClient(clientId: string, clientEmail: string, client
     throw new Error('Only firm staff can invite clients')
   }
 
+  const headersList = await headers()
+  const host = headersList.get('host')
+  const protocol = host?.includes('localhost') ? 'http' : 'https'
+  const siteUrl = `${protocol}://${host}`
+
   // Send the invite via Supabase Admin API
   const { data: inviteData, error: inviteError } = await adminSupabase.auth.admin.inviteUserByEmail(
     clientEmail,
     {
-      redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/auth/confirm`,
+      redirectTo: `${siteUrl}/auth/confirm`,
       data: {
         client_id: clientId,
         firm_id:   profile.firm_id,
