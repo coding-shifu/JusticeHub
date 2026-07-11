@@ -19,8 +19,8 @@ export function JusticeHubLogo({
 }) {
   /* Compute pixel height from the rem-based size prop */
   const sizeNum = parseFloat(size)
-  const fullHeight  = `${sizeNum * 2.2}rem`
-  const symbolHeight = `${sizeNum * 2.4}rem`
+  const fullHeight  = `${sizeNum * 2.057}rem`
+  const symbolHeight = `${sizeNum * 2.286}rem`
 
   if (showSymbolOnly) {
     return (

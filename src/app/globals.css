@@ -74,7 +74,7 @@
   --radius-xs:   4px;
 
   /* ── App shell dimensions ──────────────────────────────────── */
-  --sidebar-w:   220px;
+  --sidebar-w:   240px;
   --topbar-h:    60px;
 
   /* ── Motion (ease-out curve only — BRAND.md) ────────────────── */
@@ -295,7 +295,7 @@ button { font-family: var(--font-body); }
 }
 
 .sidebar-logo {
-  padding: 20px 12px 16px;
+  padding: 16px 14px 14px;
   border-bottom: 0.5px solid var(--color-border);
   flex-shrink: 0;
 }
@@ -320,33 +320,33 @@ button { font-family: var(--font-body); }
 
 .sidebar-nav {
   flex: 1;
-  padding: 16px 12px;
+  padding: 12px 10px;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 1px;
 }
 
 .nav-section-label {
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 600;
   color: var(--color-text-muted);
   letter-spacing: 0.8px;
   text-transform: uppercase;
-  padding: 12px 10px 6px;
-  margin-top: 8px;
+  padding: 16px 14px 6px;
+  margin-top: 4px;
 }
 .nav-section-label:first-child { margin-top: 0; }
 
-/* Nav item: h-9 px-2.5 rounded-lg text-sm text-secondary icon-17px gap-2.5 */
+/* Nav item: refined sizing for clean n8n-style proportions */
 .nav-item {
   display: flex;
   align-items: center;
-  gap: 10px;               /* gap-2.5 = 10px */
-  padding: 0 10px;         /* px-2.5 = 10px */
-  height: 36px;            /* h-9 = 36px */
-  border-radius: var(--radius-lg);
-  font-size: 14px;
+  gap: 10px;
+  padding: 0 14px;
+  height: 34px;
+  border-radius: var(--radius-md);
+  font-size: 13px;
   font-weight: 400;
   color: var(--color-text-secondary);
   text-decoration: none;
@@ -374,10 +374,10 @@ button { font-family: var(--font-body); }
   color: var(--color-primary);
 }
 
-/* Nav icons: 20px for navigation */
+/* Nav icons: 18px for cleaner proportions */
 .nav-item svg {
-  width: 20px;
-  height: 20px;
+  width: 18px;
+  height: 18px;
   flex-shrink: 0;
 }
 
@@ -387,7 +387,7 @@ button { font-family: var(--font-body); }
 }
 
 .sidebar-footer {
-  padding: 12px;
+  padding: 10px;
   border-top: 0.5px solid var(--color-border);
   flex-shrink: 0;
 }
@@ -396,17 +396,17 @@ button { font-family: var(--font-body); }
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 8px 10px;
+  padding: 6px 10px;
 }
 
-/* Medium avatar: 36px — bg-primary-100 text-primary-dark font-bold text-xs */
+/* Avatar: 32px — slightly smaller for cleaner sidebar footer */
 .sidebar-avatar {
-  width: 36px;
-  height: 36px;
+  width: 32px;
+  height: 32px;
   border-radius: var(--radius-full);
   background: var(--color-primary-100);
   color: var(--color-primary-dark);
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 700;
   display: flex;
   align-items: center;
@@ -420,7 +420,7 @@ button { font-family: var(--font-body); }
 }
 
 .sidebar-user-name {
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 600;
   color: var(--color-text-primary);
   white-space: nowrap;
@@ -429,7 +429,7 @@ button { font-family: var(--font-body); }
 }
 
 .sidebar-user-role {
-  font-size: 11px;
+  font-size: 10px;
   color: var(--color-text-muted);
   text-transform: capitalize;
 }
@@ -1338,8 +1338,8 @@ button { font-family: var(--font-body); }
   .nav-item {
     justify-content: center;
     padding: 0;
-    width: 44px;
-    height: 36px;
+    width: 40px;
+    height: 34px;
     border-radius: var(--radius-md);
   }
 
@@ -1353,7 +1353,7 @@ button { font-family: var(--font-body); }
   }
 
   #sidebar-signout-btn {
-    width: 44px;
+    width: 40px;
     margin: 4px auto 0;
     padding: 0;
     justify-content: center;
@@ -1361,19 +1361,19 @@ button { font-family: var(--font-body); }
 
   .sidebar-manual-toggle {
     justify-content: center;
-    padding: 12px 0 0 !important;
-    width: 44px;
-    margin: 8px auto 0;
+    padding: 10px 0 0 !important;
+    width: 40px;
+    margin: 4px auto 0;
   }
 }
 
 /* Manual Collapsed Sidebar State (Toggled via button) */
 @media (min-width: 769px) {
   .sidebar-manual-toggle {
-    margin-top: 8px;
+    margin-top: 4px;
     border-top: 0.5px solid var(--color-border);
     border-radius: 0 !important;
-    padding-top: 12px !important;
+    padding-top: 10px !important;
     height: auto !important;
   }
 
@@ -1408,8 +1408,8 @@ button { font-family: var(--font-body); }
   .app-sidebar.collapsed .nav-item {
     justify-content: center;
     padding: 0;
-    width: 44px;
-    height: 36px;
+    width: 40px;
+    height: 34px;
     border-radius: var(--radius-md);
   }
 
@@ -1423,7 +1423,7 @@ button { font-family: var(--font-body); }
   }
 
   .app-sidebar.collapsed #sidebar-signout-btn {
-    width: 44px;
+    width: 40px;
     margin: 4px auto 0;
     padding: 0;
     justify-content: center;
@@ -1431,9 +1431,9 @@ button { font-family: var(--font-body); }
 
   .app-sidebar.collapsed .sidebar-manual-toggle {
     justify-content: center;
-    padding: 12px 0 0 !important;
-    width: 44px;
-    margin: 8px auto 0;
+    padding: 10px 0 0 !important;
+    width: 40px;
+    margin: 4px auto 0;
   }
 }
 
